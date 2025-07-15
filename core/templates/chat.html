@@ -1,39 +1,86 @@
 {% extends 'base.html' %}
-{% block title %}Chat{% endblock %}
-{% block content %}
 {% load static %}
+{% block title %}Chat{% endblock %}
+
+{% block content %}
 <style>
   .fixed-chatbox {
     position: fixed;
     bottom: 0;
-    right: 2rem;
+    right: 1rem;
     width: 350px;
     max-width: 95vw;
     z-index: 50;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);
     border-radius: 1rem 1rem 0 0;
     background: #fff;
     display: flex;
     flex-direction: column;
     height: 500px;
+    font-family: 'Segoe UI', sans-serif;
   }
+
   .chat-header {
     background: #2563eb;
     color: #fff;
     padding: 1rem;
     border-radius: 1rem 1rem 0 0;
-    font-weight: bold;
+    font-weight: 600;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
+
+  .chat-header a {
+    font-size: 0.85rem;
+    text-decoration: underline;
+  }
+
   .chat-messages {
     flex: 1;
     overflow-y: auto;
     padding: 1rem;
-    background: #f3f4f6;
+    background: url('{% static "whatsapp-bg.png" %}') repeat;
+    background-size: 400px auto;
+    font-size: 0.95rem;
   }
+
+  .chat-message-own {
+    text-align: right;
+  }
+
+  .chat-message-other {
+    text-align: left;
+  }
+
+  .chat-bubble {
+    display: inline-block;
+    padding: 0.6rem 0.9rem;
+    border-radius: 1rem;
+    max-width: 80%;
+    margin-bottom: 6px;
+    word-wrap: break-word;
+  }
+
+  .chat-message-own .chat-bubble {
+    background-color: #2563eb;
+    color: white;
+    border-bottom-right-radius: 0.2rem;
+  }
+
+  .chat-message-other .chat-bubble {
+    background-color: #e5e7eb;
+    color: #111827;
+    border-bottom-left-radius: 0.2rem;
+  }
+
+  .chat-meta {
+    font-size: 0.75rem;
+    margin-top: 4px;
+    color: #9ca3af;
+  }
+
   .chat-input-row {
     display: flex;
     border-top: 1px solid #e5e7eb;
@@ -41,13 +88,51 @@
     background: #fff;
     border-radius: 0 0 1rem 1rem;
   }
-  .chat-message-own {
-    text-align: right;
+
+  .chat-input {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem 0 0 0.5rem;
+    font-size: 1rem;
+    outline: none;
   }
-  .chat-message-other {
-    text-align: left;
+
+  .chat-send-btn {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0 0.5rem 0.5rem 0;
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .text-gray-400 {
+    color: #9ca3af;
+  }
+
+  @media (max-width: 480px) {
+    .fixed-chatbox {
+      bottom: 0;
+      right: 0;
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+    }
+    .chat-header {
+      border-radius: 0;
+    }
+    .chat-input-row {
+      border-radius: 0;
+    }
   }
 </style>
+
 <div class="fixed-chatbox">
   <div class="chat-header">
     <span>
@@ -58,45 +143,43 @@
         {{ request_obj.sender.username }}
       {% endif %}
     </span>
-    <a href="{% url 'chat_list' %}" class="text-white text-sm underline">Back to Chats</a>
+    <a href="{% url 'chat_list' %}">Back</a>
   </div>
-  <div class="chat-messages" id="chat-messages" style="background: url('{% static 'whatsapp-bg.png' %}') repeat; background-size: 400px auto;">
+
+  <div class="chat-messages" id="chat-messages">
     {% for msg in messages %}
-      <div class="{% if msg.sender == user %}chat-message-own{% else %}chat-message-other{% endif %} mb-2">
-        <div class="inline-block px-3 py-2 rounded-lg {% if msg.sender == user %}bg-blue-500 text-white{% else %}bg-gray-200 text-gray-900{% endif %}">
-          <span class="block text-xs font-semibold mb-1">{{ msg.sender.username }}</span>
-          <span>{{ msg.message }}</span>
-          <span class="block text-xs text-gray-400 mt-1">{{ msg.timestamp|date:"SHORT_DATETIME_FORMAT" }}</span>
+      <div class="{% if msg.sender == user %}chat-message-own{% else %}chat-message-other{% endif %}">
+        <div class="chat-bubble">
+          <div class="font-semibold text-sm">{{ msg.sender.username }}</div>
+          <div>{{ msg.message }}</div>
+          <div class="chat-meta">{{ msg.timestamp|date:"SHORT_DATETIME_FORMAT" }}</div>
         </div>
       </div>
     {% empty %}
-      <div class="text-gray-400 text-center">No messages yet.</div>
+      <div class="text-gray-400 text-center mt-4">No messages yet.</div>
     {% endfor %}
   </div>
+
   <form method="post" class="chat-input-row">
     {% csrf_token %}
-    <input type="text" name="message" class="flex-1 px-3 py-2 border rounded-l focus:outline-none" placeholder="Type your message..." required autocomplete="off">
-    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r">Send</button>
+    <input type="text" name="message" class="chat-input" placeholder="Type your message..." required autocomplete="off">
+    <button type="submit" class="chat-send-btn">Send</button>
   </form>
 </div>
+
 <script>
-  // Scroll to bottom on load
   const chatMessages = document.getElementById('chat-messages');
   if (chatMessages) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  // --- AJAX Live Chat ---
   const chatForm = document.querySelector('.chat-input-row');
-  const chatBox = document.querySelector('.fixed-chatbox');
   const reqId = {{ request_obj.id }};
 
-  // Poll for new messages every 2 seconds
   function pollMessages() {
     fetch(`/chat-ajax/${reqId}/`)
       .then(response => response.text())
       .then(html => {
-        // Extract only the messages div from the returned HTML
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
         const newMessages = tempDiv.querySelector('#chat-messages');
@@ -106,11 +189,11 @@
         }
       });
   }
+
   setInterval(pollMessages, 2000);
 
-  // AJAX send message
   if (chatForm) {
-    chatForm.addEventListener('submit', function(e) {
+    chatForm.addEventListener('submit', function (e) {
       e.preventDefault();
       const formData = new FormData(chatForm);
       fetch(window.location.pathname, {
@@ -120,7 +203,6 @@
       })
       .then(response => response.text())
       .then(html => {
-        // Extract only the messages div from the returned HTML
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
         const newMessages = tempDiv.querySelector('#chat-messages');

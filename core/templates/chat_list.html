@@ -2,109 +2,90 @@
 {% block title %}Chats{% endblock %}
 {% block content %}
 <style>
-  html, body {
-    height: 100%;
-    width: 100vw;
+  body, html {
     margin: 0;
     padding: 0;
-    background: #e9ebee !important;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
-  }
-  .chat-app-bg {
-    background: url('https://www.transparenttextures.com/patterns/cubes.png') repeat;
-    background-size: 300px 300px;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 0;
-    opacity: 0.12;
-    pointer-events: none;
-  }
-  .chat-app-container {
-    min-height: 100vh;
     width: 100vw;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #e9ebee;
-    position: relative;
-    z-index: 1;
+    height: 100vh;
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    background: #ece5dd;
+    overflow-x: hidden;
   }
-  .chat-app-box {
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-    width: 100%;
-    max-width: 1100px;
-    height: 90vh;
-    min-height: 600px;
+  .wa-root {
     display: flex;
+    width: 100vw;
+    height: 100vh;
+    background: #ece5dd;
     overflow: hidden;
     position: relative;
-    transition: box-shadow 0.2s;
   }
-  .chat-sidebar {
-    width: 340px;
+  .wa-sidebar {
+    width: 360px;
     min-width: 220px;
     max-width: 400px;
-    background: #f7f8fa;
-    border-right: 1px solid #e0e0e0;
+    background: #fff;
+    border-right: 1px solid #ddd;
     display: flex;
     flex-direction: column;
     z-index: 2;
     transition: all 0.3s;
+    box-sizing: border-box;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
   }
-  .sidebar-header {
-    background: #f7f8fa;
-    color: #222e35;
-    padding: 18px 20px 10px 20px;
+  .wa-sidebar-header {
+    background: #075e54;
+    color: #fff;
+    padding: 18px 20px 12px 20px;
     font-weight: 700;
-    font-size: 20px;
+    font-size: 22px;
     display: flex;
     align-items: center;
     gap: 12px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid #128c7e;
   }
-  .sidebar-search {
-    padding: 10px 16px 10px 16px;
-    background: #f7f8fa;
-    border-bottom: 1px solid #e0e0e0;
+  .wa-sidebar-search {
+    padding: 10px 20px;
+    background: #f6f6f6;
+    border-bottom: 1px solid #ece5dd;
   }
-  .sidebar-search input {
+  .wa-sidebar-search input {
     width: 100%;
     padding: 10px 14px;
-    border-radius: 8px;
+    border-radius: 20px;
     border: none;
-    background: #e9ebee;
+    background: #ece5dd;
     color: #222e35;
     font-size: 1em;
     outline: none;
     transition: box-shadow 0.2s;
   }
-  .sidebar-search input:focus {
+  .wa-sidebar-search input:focus {
     box-shadow: 0 0 0 2px #25d36633;
   }
-  .chat-list {
+  .wa-chat-list {
     flex: 1;
     overflow-y: auto;
-    background: #f7f8fa;
+    background: #fff;
   }
-  .chat-item {
+  .wa-chat-item {
     display: flex;
     align-items: center;
-    padding: 14px 18px;
-    border-bottom: 1px solid #ececec;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f0f0;
     cursor: pointer;
     transition: background-color 0.2s;
     background: transparent;
     position: relative;
+    gap: 14px;
   }
-  .chat-item:hover, .chat-item.active {
-    background: #e9ebee;
+  .wa-chat-item:hover, .wa-chat-item.active {
+    background: #f0f0f0;
   }
-  .chat-avatar {
-    width: 44px;
-    height: 44px;
+  .wa-avatar {
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     background: #25d366;
     display: flex;
@@ -112,27 +93,26 @@
     justify-content: center;
     color: #fff;
     font-weight: bold;
-    font-size: 18px;
-    margin-right: 14px;
-    cursor: pointer;
+    font-size: 20px;
     flex-shrink: 0;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    text-decoration: none;
   }
-  .chat-info {
+  .wa-chat-info {
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 2px;
   }
-  .chat-name-row {
+  .wa-chat-name-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     min-width: 0;
   }
-  .chat-name {
+  .wa-chat-name {
     font-weight: 600;
     color: #222e35;
     white-space: nowrap;
@@ -140,52 +120,71 @@
     text-overflow: ellipsis;
     font-size: 1em;
   }
-  .chat-time {
+  .wa-chat-time {
     color: #aebac1;
     font-size: 12px;
     margin-left: 8px;
     flex-shrink: 0;
   }
-  .chat-preview {
+  .wa-chat-preview {
     color: #7a869a;
     font-size: 14px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .chat-main {
+  .wa-main {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: url('https://www.transparenttextures.com/patterns/cubes.png') repeat #f7f8fa;
-    background-size: 300px 300px;
+    background: #ece5dd;
     position: relative;
     z-index: 1;
-    transition: all 0.3s;
     min-width: 0;
     min-height: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
   }
-  .chat-main-header {
-    background: #fff;
-    color: #222e35;
-    padding: 14px 18px;
+  .wa-main-inner {
+    width: 100%;
+    height: 100%;
+    max-width: 700px;
+    max-height: 96vh;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    background: #efeae2;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+    border-radius: 0 0 0 0;
+    overflow: hidden;
+  }
+  .wa-main-header {
+    background: #075e54;
+    border-bottom: 1px solid #128c7e;
+    width: 100%;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid #ececec;
-    min-height: 56px;
-    gap: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    padding: 12px 20px;
+    gap: 12px;
+    min-height: 64px;
+    z-index: 10;
   }
-  .chat-main-header-left {
+  .wa-main-header-left {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     flex: 1;
     min-width: 0;
   }
-  .chat-main-avatar {
-    width: 40px;
-    height: 40px;
+  .wa-main-avatar {
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     background: #25d366;
     display: flex;
@@ -197,50 +196,53 @@
     font-size: 1.2em;
     flex-shrink: 0;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    text-decoration: none;
   }
-  .chat-main-name {
+  .wa-main-name {
     font-weight: 600;
     font-size: 1.1em;
-    color: #222e35;
+    color: #fff;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .chat-main-status {
+  .wa-main-status {
     font-size: 0.95em;
-    color: #7a869a;
+    color: #d1f2eb;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .chat-main-actions {
+  .wa-main-actions {
     display: flex;
     align-items: center;
     gap: 10px;
   }
-  .chat-main-actions svg {
-    color: #aebac1;
+  .wa-main-actions svg {
+    color: #fff;
     width: 22px;
     height: 22px;
     cursor: pointer;
     transition: color 0.2s;
   }
-  .chat-main-actions svg:hover {
+  .wa-main-actions svg:hover {
     color: #25d366;
   }
-  .chat-messages {
+  .wa-messages {
     flex: 1;
-    padding: 18px 12px 18px 12px;
+    padding: 24px 0 0 0;
+    margin: 0;
     overflow-y: auto;
-    background: transparent;
+    background: #efeae2;
     position: relative;
     z-index: 1;
     display: flex;
     flex-direction: column;
-    scroll-behavior: smooth;
     min-height: 0;
+    box-sizing: border-box;
+    width: 100%;
   }
-  .date-separator {
+  .wa-date-separator {
     text-align: center;
     margin: 18px 0 10px 0;
     color: #aebac1;
@@ -249,101 +251,93 @@
     letter-spacing: 0.5px;
     position: relative;
   }
-  .date-separator:before, .date-separator:after {
+  .wa-date-separator:before, .wa-date-separator:after {
     content: '';
     display: inline-block;
     width: 30px;
     height: 1px;
-    background: #e0e0e0;
+    background: #ece5dd;
     vertical-align: middle;
     margin: 0 8px;
   }
-  .message {
+  .wa-message {
     margin-bottom: 2px;
     display: flex;
     align-items: flex-end;
+    width: 100%;
   }
-  .message.own {
+  .wa-message.own {
     justify-content: flex-end;
   }
-  .message.other {
+  .wa-message.other {
     justify-content: flex-start;
   }
-  .message-bubble {
-    max-width: 85vw;
-    padding: 10px 16px 8px 16px;
-    border-radius: 16px 16px 4px 16px;
-    position: relative;
-    word-wrap: break-word;
-    font-size: 1.05em;
-    box-shadow: 0 1px 1px rgba(0,0,0,0.04);
-    color: #222e35;
+  .wa-bubble {
+    max-width: 70vw;
     min-width: 0;
-    transition: background 0.2s;
-    margin-bottom: 2px;
-    background: #f1f0f0;
-  }
-  .message.own .message-bubble {
-    background: #25d366;
-    color: #fff;
-    border-radius: 16px 16px 16px 4px;
-    align-items: flex-end;
-  }
-  .message.other .message-bubble {
-    background: #f1f0f0;
+    margin: 4px 18px;
+    box-sizing: border-box;
+    border-radius: 7.5px;
+    background: #fff;
     color: #222e35;
-    border-radius: 16px 16px 4px 16px;
+    font-size: 1.05em;
+    box-shadow: 0 1px 1.5px rgba(0,0,0,0.04);
+    padding: 10px 16px 8px 16px;
+    word-break: break-word;
+    position: relative;
+  }
+  .wa-message.own .wa-bubble {
+    background: #dcf8c6;
+    color: #222e35;
+    border-bottom-right-radius: 0;
+  }
+  .wa-message.other .wa-bubble {
+    background: #fff;
+    color: #222e35;
+    border-bottom-left-radius: 0;
     align-items: flex-start;
   }
-  .message-bubble:hover {
-    background: #e9ebee;
+  .wa-bubble:hover {
+    background: #f0f0f0;
   }
-  .message-time {
+  .wa-message-time {
     font-size: 11px;
-    color: #7a869a;
+    color: #aebac1;
     margin-top: 4px;
     text-align: right;
     display: block;
   }
-  .chat-input-container {
-    background: #fff;
-    padding: 10px 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    border-top: 1px solid #ececec;
-    position: relative;
-    width: 100%;
-    z-index: 2;
-    box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
-  }
-  .chat-input-icon {
-    background: none;
-    border: none;
-    color: #aebac1;
-    font-size: 1.4em;
+  .wa-input-container {
+    background: #f7f7f7;
+    padding: 12px 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    padding: 0 6px;
-    transition: color 0.2s;
+    gap: 8px;
+    border-top: 1px solid #ece5dd;
+    position: relative;
+    width: 100%;
+    z-index: 2;
+    box-shadow: none;
+    flex-shrink: 0;
+    margin: 0;
   }
-  .chat-input-icon:hover {
-    color: #25d366;
-  }
-  .chat-input {
-    flex: 1;
-    background: #e9ebee;
+  .wa-input {
+    flex: 1 1 auto;
+    max-width: 500px;
+    min-width: 80px;
+    width: 100%;
+    background: #fff;
     border: none;
     border-radius: 20px;
-    padding: 12px 16px;
-    outline: none;
+    padding: 12px 18px;
     font-size: 1em;
     color: #222e35;
-    min-width: 0;
+    margin: 0 8px;
+    box-sizing: border-box;
+    outline: none;
   }
-  .send-button {
+  .wa-send-button {
     background: #25d366;
     color: white;
     border: none;
@@ -359,181 +353,272 @@
     min-height: 44px;
     font-size: 1.2em;
   }
-  .send-button:hover {
-    background: #1fa855;
+  .wa-send-button:hover {
+    background: #128c7e;
+  }
+  .wa-input-icon {
+    background: none;
+    border: none;
+    color: #aebac1;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2em;
+    margin: 0 2px;
+    padding: 0;
+  }
+  .wa-no-chat {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #efeae2;
+    height: 100%;
   }
   @media (max-width: 900px) {
-    .chat-app-box {
-      border-radius: 0;
-      margin: 0;
-      max-width: 100vw;
-      height: 100vh;
-      flex-direction: column;
-      min-height: 0;
+    .wa-root,
+    .wa-main,
+    .wa-main-header,
+    .wa-messages,
+    .wa-input-container {
+      width: 100vw !important;
+      max-width: 100vw !important;
+      min-width: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      background: #fff !important;
     }
-    .chat-sidebar {
-      width: 100vw;
-      min-width: 0;
-      max-width: 100vw;
+    .wa-sidebar {
       position: absolute;
       left: 0;
       top: 0;
       bottom: 0;
       z-index: 2;
+      width: 100vw !important;
+      min-width: 0 !important;
+      max-width: 100vw !important;
+      height: 100vh !important;
+      background: #fff !important;
       transform: translateX(0);
-      border-radius: 0;
+      transition: transform 0.3s;
+      align-items: flex-start !important;
+      justify-content: flex-start !important;
     }
-    .chat-sidebar.hide-mobile {
+    .wa-sidebar.hide-mobile {
       transform: translateX(-100vw);
       pointer-events: none;
     }
-    .chat-main {
-      width: 100vw;
-      min-width: 0;
-      height: 100%;
-      position: absolute;
+    .wa-main {
+      position: absolute !important;
       left: 0;
       top: 0;
       bottom: 0;
-      background: #f7f8fa;
       z-index: 3;
+      width: 100vw !important;
+      height: 100vh !important;
       transform: translateX(100vw);
-      border-radius: 0;
-      display: flex;
-      flex-direction: column;
+      display: flex !important;
+      flex-direction: column !important;
+      background: #efeae2 !important;
+      transition: transform 0.3s;
+      align-items: flex-start !important;
+      justify-content: flex-start !important;
     }
-    .chat-main.show-mobile {
+    .wa-main.show-mobile {
       transform: translateX(0);
     }
-    .chat-input-container {
-      width: 100%;
-      padding: 10px 6px;
-      border-radius: 0;
-      position: relative;
+    .wa-main-inner {
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: none !important;
+      max-height: none !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      background: #efeae2 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+    }
+    .wa-messages {
+      margin: 0 !important;
+      padding: 0 !important;
+      box-sizing: border-box !important;
+      flex: 1 1 0 !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      background: #efeae2 !important;
+      width: 100vw !important;
+    }
+    .wa-bubble {
+      max-width: 90vw !important;
+      margin: 0 2vw !important;
+    }
+    .wa-input-container {
+      width: 100vw !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      position: relative !important;
       left: 0;
       bottom: 0;
+      margin: 0 !important;
+      box-shadow: none !important;
+      box-sizing: border-box !important;
+      flex-shrink: 0 !important;
+      background: #fff !important;
+      justify-content: center !important;
+      align-items: center !important;
     }
-    .chat-messages {
-      margin-bottom: 0;
+    .wa-sidebar-header {
+      min-height: 60px;
+      font-size: 1.1em;
+      padding: 16px 12px 10px 16px !important;
+    }
+    .wa-input {
+      max-width: 90vw !important;
+      margin: 0 4vw !important;
+      font-size: 1.1em !important;
+      padding: 14px 12px !important;
+    }
+    .wa-main-header {
+      padding: 10px 8px !important;
+      min-height: 56px !important;
+      font-size: 1em !important;
+    }
+    .wa-main-avatar {
+      width: 38px !important;
+      height: 38px !important;
+      font-size: 1em !important;
+    }
+    .wa-send-button, .wa-input-icon {
+      width: 40px !important;
+      height: 40px !important;
+      min-width: 40px !important;
+      min-height: 40px !important;
+      font-size: 1em !important;
     }
   }
 </style>
-<div class="chat-app-bg"></div>
-<div class="chat-app-container">
-  <div class="chat-app-box">
-    <!-- Chat Sidebar -->
-    <div class="chat-sidebar" id="chat-sidebar">
-      <div class="sidebar-header">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4 1 1-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-        </svg>
-        Chats
-        <span style="flex:1"></span>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:22px;height:22px;cursor:pointer;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </div>
-      <div class="sidebar-search">
-        <input type="text" placeholder="Search or start a new chat" />
-      </div>
-      <div class="chat-list">
-        {% for req in chats %}
-          <div class="chat-item {% if selected_chat and selected_chat.id == req.id %}active{% endif %}" 
-               onclick="openChatMobile({{ req.id }}, '{{ req.other_user.username }}')">
-            <a href="{% url 'user_profile' req.other_user.id %}" class="chat-avatar" onclick="event.stopPropagation();">
-              {{ req.other_user.username|slice:":1"|upper }}
-            </a>
-            <div class="chat-info">
-              <div class="chat-name-row">
-                <span class="chat-name">{{ req.other_user.username }}</span>
-                <span class="chat-time">{{ req.created_at|date:"g:i A" }}</span>
-              </div>
-              <span class="chat-preview">{{ req.skill_needed }}</span>
-            </div>
-          </div>
-        {% empty %}
-          <div class="p-6 text-gray-500 text-center">No chats yet.</div>
-        {% endfor %}
-      </div>
+<div class="wa-root">
+  <!-- Sidebar -->
+  <div class="wa-sidebar" id="wa-sidebar">
+    <div class="wa-sidebar-header">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:28px;height:28px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <span style="flex:1"></span>
+      Chat
     </div>
-    <!-- Chat Main Area -->
-    <div class="chat-main" id="chat-main">
-      {% if selected_chat %}
-        <!-- Chat Header -->
-        <div class="chat-main-header">
-          <div class="chat-main-header-left">
-            <button class="back-button-mobile" id="back-button-mobile" onclick="showChatListMobile()" style="background:none;border:none;color:#aebac1;padding:0 8px 0 0;display:flex;align-items:center;">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-              </svg>
-            </button>
-            <a href="{% url 'user_profile' selected_chat.other_user.id %}" class="chat-main-avatar">
-              {{ selected_chat.other_user.username|slice:":1"|upper }}
-            </a>
-            <div style="min-width:0;">
-              <div class="chat-main-name">{{ selected_chat.other_user.username }}</div>
-              <div class="chat-main-status">last seen today at 11:07 AM</div>
+    <div class="wa-sidebar-search">
+      <input type="text" placeholder="Search or start a new chat" />
+    </div>
+    <div class="wa-chat-list">
+      {% for req in chats %}
+        <div class="wa-chat-item {% if selected_chat and selected_chat.id == req.id %}active{% endif %}" 
+             onclick="waOpenChat({{ req.id }}, '{{ req.other_user.username }}')">
+          <a href="{% url 'user_profile' req.other_user.id %}" class="wa-avatar" onclick="event.stopPropagation();">
+            {{ req.other_user.username|slice:":1"|upper }}
+          </a>
+          <div class="wa-chat-info">
+            <div class="wa-chat-name-row">
+              <span class="wa-chat-name">{{ req.other_user.username }}</span>
+              <span class="wa-chat-time">{{ req.created_at|date:"g:i A" }}</span>
             </div>
-          </div>
-          <div class="chat-main-actions">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A2 2 0 0122 9.618v4.764a2 2 0 01-2.447 1.894L15 14M4 6v12a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2z"/></svg>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A2 2 0 0122 9.618v4.764a2 2 0 01-2.447 1.894L15 14M4 6v12a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2z"/></svg>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.4 15A7.97 7.97 0 0020 12c0-4.418-4.03-8-9-8S2 7.582 2 12c0 1.042.16 2.04.46 2.97"/></svg>
+            <span class="wa-chat-preview">{{ req.skill_needed }}</span>
           </div>
         </div>
-        <!-- Messages -->
-        <div class="chat-messages" id="chat-messages">
-          {% regroup selected_chat_messages by timestamp.date as day_groups %}
-          {% for day in day_groups %}
-            <div class="date-separator">{{ day.grouper|date:"l, F j, Y" }}</div>
-            {% for msg in day.list %}
-              <div class="message {% if msg.sender == user %}own{% else %}other{% endif %}">
-                <div class="message-bubble">
-                  <div>{{ msg.message }}</div>
-                  <span class="message-time">{{ msg.timestamp|date:"g:i A" }}</span>
-                  {% if msg.sender == user %}
-                    {% if msg.read %}
-                      <span style="color:#34b7f1;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
-                    {% else %}
-                      <span style="color:#888;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
-                    {% endif %}
-                  {% endif %}
-                </div>
-              </div>
-            {% endfor %}
-          {% endfor %}
-        </div>
-        <!-- Input -->
-        <form method="post" action="{% url 'chat' selected_chat.id %}" class="chat-input-container" id="chat-input-container">
-          {% csrf_token %}
-          <button type="button" class="chat-input-icon" tabindex="-1" aria-label="Emoji"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg></button>
-          <button type="button" class="chat-input-icon" tabindex="-1" aria-label="Attach"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586a4 4 0 10-5.656-5.656l-6.586 6.586a6 6 0 108.485 8.485l6.586-6.586"/></svg></button>
-          <input type="text" name="message" class="chat-input" placeholder="Type a message..." required autocomplete="off">
-          <button type="submit" class="send-button" aria-label="Send">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+      {% empty %}
+        <div class="p-6 text-gray-500 text-center">No chats yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+  <!-- Chat Main Area -->
+  <div class="wa-main" id="wa-main">
+    <div class="wa-main-inner">
+    {% if selected_chat %}
+      <!-- Chat Header -->
+      <div class="wa-main-header">
+        <div class="wa-main-header-left">
+          <button class="back-button-mobile" id="wa-back-button-mobile" onclick="waShowSidebar()" style="background:none;border:none;color:#fff;padding:0 8px 0 0;display:flex;align-items:center;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
           </button>
-        </form>
-      {% else %}
-        <div class="no-chat-selected">
-          <div class="text-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4 1 1-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-            </svg>
-            <p>Select a chat to start messaging</p>
+          <a href="{% url 'user_profile' selected_chat.other_user.id %}" class="wa-main-avatar">
+            {{ selected_chat.other_user.username|slice:":1"|upper }}
+          </a>
+          <div style="min-width:0;">
+            <div class="wa-main-name">{{ selected_chat.other_user.username }}</div>
+            <div class="wa-main-status">last seen today at 11:07 AM</div>
           </div>
         </div>
-      {% endif %}
+        <div class="wa-main-actions">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.4 15A7.97 7.97 0 0020 12c0-4.418-4.03-8-9-8S2 7.582 2 12c0 1.042.16 2.04.46 2.97"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A2 2 0 0122 9.618v4.764a2 2 0 01-2.447 1.894L15 14M4 6v12a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2z"/></svg>
+        </div>
+      </div>
+      <!-- Messages -->
+      <div class="wa-messages" id="wa-messages">
+        {% regroup selected_chat_messages by timestamp.date as day_groups %}
+        {% for day in day_groups %}
+          <div class="wa-date-separator">{{ day.grouper|date:"l, F j, Y" }}</div>
+          {% for msg in day.list %}
+            <div class="wa-message {% if msg.sender == user %}own{% else %}other{% endif %}">
+              <div class="wa-bubble">
+                <div>{{ msg.message }}</div>
+                <span class="wa-message-time">{{ msg.timestamp|date:"g:i A" }}</span>
+                {% if msg.sender == user %}
+                  {% if msg.read %}
+                    <span style="color:#34b7f1;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
+                  {% else %}
+                    <span style="color:#888;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+      <!-- Input -->
+      <form method="post" action="{% url 'chat' selected_chat.id %}" class="wa-input-container" id="wa-input-container">
+        {% csrf_token %}
+        <button type="button" class="wa-input-icon" tabindex="-1" aria-label="Emoji"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg></button>
+        <button type="button" class="wa-input-icon" tabindex="-1" aria-label="Attach"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586a4 4 0 10-5.656-5.656l-6.586 6.586a6 6 0 108.485 8.485l6.586-6.586"/></svg></button>
+        <input type="text" name="message" class="wa-input" placeholder="Type a message..." required autocomplete="off">
+        <button type="submit" class="wa-send-button" aria-label="Send">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+          </svg>
+        </button>
+      </form>
+    {% else %}
+      <div class="wa-no-chat">
+        <div class="text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4 1 1-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          <p>Select a chat to start messaging</p>
+        </div>
+      </div>
+    {% endif %}
     </div>
   </div>
 </div>
 <script>
-function openChatMobile(chatId, username) {
+function waOpenChat(chatId, username) {
   if (window.innerWidth <= 900) {
-    document.getElementById('chat-sidebar').classList.add('hide-mobile');
-    document.getElementById('chat-main').classList.add('show-mobile');
+    document.getElementById('wa-sidebar').classList.add('hide-mobile');
+    document.getElementById('wa-main').classList.add('show-mobile');
   }
   // Update active chat item
-  document.querySelectorAll('.chat-item').forEach(item => {
+  document.querySelectorAll('.wa-chat-item').forEach(item => {
     item.classList.remove('active');
   });
   event.currentTarget.classList.add('active');
@@ -541,30 +626,30 @@ function openChatMobile(chatId, username) {
   fetch(`/chat-ajax/${chatId}/`)
     .then(response => response.text())
     .then(html => {
-      document.getElementById('chat-main').innerHTML = html;
-      scrollToBottom();
-      setupChatFormAjax(chatId);
+      document.getElementById('wa-main').innerHTML = '<div class="wa-main-inner">'+html+'</div>';
+      waScrollToBottom();
+      waSetupFormAjax(chatId);
     })
     .catch(error => {
       console.error('Error loading chat:', error);
     });
 }
-function showChatListMobile() {
+function waShowSidebar() {
   if (window.innerWidth <= 900) {
-    document.getElementById('chat-sidebar').classList.remove('hide-mobile');
-    document.getElementById('chat-main').classList.remove('show-mobile');
+    document.getElementById('wa-sidebar').classList.remove('hide-mobile');
+    document.getElementById('wa-main').classList.remove('show-mobile');
   }
 }
-function scrollToBottom() {
-  const messagesContainer = document.getElementById('chat-messages');
+function waScrollToBottom() {
+  const messagesContainer = document.getElementById('wa-messages');
   if (messagesContainer) {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 }
-function setupChatFormAjax(chatId) {
-  const chatMain = document.getElementById('chat-main');
-  if (!chatMain) return;
-  const form = chatMain.querySelector('form');
+function waSetupFormAjax(chatId) {
+  const waMain = document.getElementById('wa-main');
+  if (!waMain) return;
+  const form = waMain.querySelector('form');
   if (!form) return;
   form.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -578,20 +663,20 @@ function setupChatFormAjax(chatId) {
     })
       .then(response => response.text())
       .then(html => {
-        chatMain.innerHTML = html;
-        scrollToBottom();
-        setupChatFormAjax(chatId);
+        waMain.innerHTML = '<div class="wa-main-inner">'+html+'</div>';
+        waScrollToBottom();
+        waSetupFormAjax(chatId);
       });
   });
 }
 window.addEventListener('resize', function() {
   if (window.innerWidth > 900) {
-    document.getElementById('chat-sidebar').classList.remove('hide-mobile');
-    document.getElementById('chat-main').classList.remove('show-mobile');
+    document.getElementById('wa-sidebar').classList.remove('hide-mobile');
+    document.getElementById('wa-main').classList.remove('show-mobile');
   }
 });
 document.addEventListener('DOMContentLoaded', function() {
-  scrollToBottom();
+  waScrollToBottom();
 });
 </script>
 {% endblock %}

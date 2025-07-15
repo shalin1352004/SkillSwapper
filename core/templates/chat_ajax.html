@@ -1,30 +1,128 @@
-<div class="chat-messages" id="chat-messages">
-  {% for msg in messages %}
-    <div class="message {% if msg.sender == user %}own{% else %}other{% endif %}">
-      <div class="message-bubble" style="position:relative;">
-        <div>{{ msg.message }}</div>
-        <div class="message-time">
-          {{ msg.timestamp|date:"g:i A" }}
-          {% if msg.sender == user %}
-            {% if msg.read %}
-              <span style="color:#34b7f1;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
-            {% else %}
-              <span style="color:#888;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
-            {% endif %}
-          {% endif %}
+{% load static %}
+{% if request.user == request_obj.sender %}
+  {% with other_user=request_obj.receiver %}
+    <div class="wa-main-inner">
+      <div class="wa-main-header">
+        <div class="wa-main-header-left">
+          <a href="{% url 'user_profile' other_user.id %}" class="wa-main-avatar">
+            {{ other_user.username|slice:":1"|upper }}
+          </a>
+          <div style="min-width:0;">
+            <div class="wa-main-name">{{ other_user.username }}</div>
+            <div class="wa-main-status">last seen today at 11:07 AM</div>
+          </div>
         </div>
       </div>
+      <div class="wa-messages" id="wa-messages">
+        {% regroup messages by timestamp.date as day_groups %}
+        {% for day in day_groups %}
+          <div class="wa-date-separator">{{ day.grouper|date:"l, F j, Y" }}</div>
+          {% for msg in day.list %}
+            <div class="wa-message {% if msg.sender == user %}own{% else %}other{% endif %}">
+              <div class="wa-bubble">
+                <div>{{ msg.message }}</div>
+                <span class="wa-message-time">{{ msg.timestamp|date:"g:i A" }}</span>
+                {% if msg.sender == user %}
+                  {% if msg.read %}
+                    <span style="color:#34b7f1;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
+                  {% else %}
+                    <span style="color:#888;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+      <form method="post" class="wa-input-container">
+        {% csrf_token %}
+        <button type="button" class="wa-input-icon" tabindex="-1" aria-label="Emoji"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg></button>
+        <button type="button" class="wa-input-icon" tabindex="-1" aria-label="Attach"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586a4 4 0 10-5.656-5.656l-6.586 6.586a6 6 0 108.485 8.485l6.586-6.586"/></svg></button>
+        <input type="text" name="message" class="wa-input" placeholder="Type a message..." required autocomplete="off">
+        <button type="submit" class="wa-send-button" aria-label="Send">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+          </svg>
+        </button>
+      </form>
     </div>
-  {% empty %}
-    <div class="text-center text-gray-500 mt-8">No messages yet. Start the conversation!</div>
-  {% endfor %}
-</div>
-<form method="post" class="chat-input-container">
-  {% csrf_token %}
-  <input type="text" name="message" class="chat-input" placeholder="Type a message..." required autocomplete="off">
-  <button type="submit" class="send-button">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-    </svg>
-  </button>
-</form> 
+  {% endwith %}
+{% else %}
+  {% with other_user=request_obj.sender %}
+    <div class="wa-main-inner">
+      <div class="wa-main-header">
+        <div class="wa-main-header-left">
+          <a href="{% url 'user_profile' other_user.id %}" class="wa-main-avatar">
+            {{ other_user.username|slice:":1"|upper }}
+          </a>
+          <div style="min-width:0;">
+            <div class="wa-main-name">{{ other_user.username }}</div>
+            <div class="wa-main-status">last seen today at 11:07 AM</div>
+          </div>
+        </div>
+      </div>
+      <div class="wa-messages" id="wa-messages">
+        {% regroup messages by timestamp.date as day_groups %}
+        {% for day in day_groups %}
+          <div class="wa-date-separator">{{ day.grouper|date:"l, F j, Y" }}</div>
+          {% for msg in day.list %}
+            <div class="wa-message {% if msg.sender == user %}own{% else %}other{% endif %}">
+              <div class="wa-bubble">
+                <div>{{ msg.message }}</div>
+                <span class="wa-message-time">{{ msg.timestamp|date:"g:i A" }}</span>
+                {% if msg.sender == user %}
+                  {% if msg.read %}
+                    <span style="color:#34b7f1;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
+                  {% else %}
+                    <span style="color:#888;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% endfor %}
+      </div>
+      <form method="post" class="wa-input-container">
+        {% csrf_token %}
+        <button type="button" class="wa-input-icon" tabindex="-1" aria-label="Emoji"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg></button>
+        <button type="button" class="wa-input-icon" tabindex="-1" aria-label="Attach"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586a4 4 0 10-5.656-5.656l-6.586 6.586a6 6 0 108.485 8.485l6.586-6.586"/></svg></button>
+        <input type="text" name="message" class="wa-input" placeholder="Type a message..." required autocomplete="off">
+        <button type="submit" class="wa-send-button" aria-label="Send">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+  {% endwith %}
+{% endif %}
+<style>
+  .wa-main-inner { width: 100%; height: 100%; max-width: 700px; max-height: 96vh; margin: auto; display: flex; flex-direction: column; background: #efeae2; box-shadow: 0 2px 16px rgba(0,0,0,0.04); border-radius: 0 0 0 0; overflow: hidden; }
+  .wa-main-header { background: #075e54; border-bottom: 1px solid #128c7e; width: 100%; box-sizing: border-box; display: flex; align-items: center; padding: 12px 20px; gap: 12px; min-height: 64px; z-index: 10; }
+  .wa-main-header-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+  .wa-main-avatar { width: 44px; height: 44px; border-radius: 50%; background: #25d366; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; cursor: pointer; font-size: 1.2em; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.04); text-decoration: none; }
+  .wa-main-name { font-weight: 600; font-size: 1.1em; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wa-main-status { font-size: 0.95em; color: #d1f2eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wa-messages { flex: 1; padding: 24px 0 0 0; margin: 0; overflow-y: auto; background: #efeae2; position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 0; box-sizing: border-box; width: 100%; }
+  .wa-date-separator { text-align: center; margin: 18px 0 10px 0; color: #aebac1; font-size: 13px; font-weight: 500; letter-spacing: 0.5px; position: relative; }
+  .wa-date-separator:before, .wa-date-separator:after { content: ''; display: inline-block; width: 30px; height: 1px; background: #ece5dd; vertical-align: middle; margin: 0 8px; }
+  .wa-message { margin-bottom: 2px; display: flex; align-items: flex-end; width: 100%; }
+  .wa-message.own { justify-content: flex-end; }
+  .wa-message.other { justify-content: flex-start; }
+  .wa-bubble { max-width: 70vw; min-width: 0; margin: 4px 18px; box-sizing: border-box; border-radius: 7.5px; background: #fff; color: #222e35; font-size: 1.05em; box-shadow: 0 1px 1.5px rgba(0,0,0,0.04); padding: 10px 16px 8px 16px; word-break: break-word; position: relative; }
+  .wa-message.own .wa-bubble { background: #dcf8c6; color: #222e35; border-bottom-right-radius: 0; }
+  .wa-message.other .wa-bubble { background: #fff; color: #222e35; border-bottom-left-radius: 0; align-items: flex-start; }
+  .wa-bubble:hover { background: #f0f0f0; }
+  .wa-message-time { font-size: 11px; color: #aebac1; margin-top: 4px; text-align: right; display: block; }
+  .wa-input-container { background: #f7f7f7; padding: 12px 0; display: flex; align-items: center; justify-content: center; gap: 8px; border-top: 1px solid #ece5dd; position: relative; width: 100%; z-index: 2; box-shadow: none; flex-shrink: 0; margin: 0; }
+  .wa-input { flex: 1 1 auto; max-width: 500px; min-width: 80px; width: 100%; background: #fff; border: none; border-radius: 20px; padding: 12px 18px; font-size: 1em; color: #222e35; margin: 0 8px; box-sizing: border-box; outline: none; }
+  .wa-send-button { background: #25d366; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s; min-width: 44px; min-height: 44px; font-size: 1.2em; }
+  .wa-send-button:hover { background: #128c7e; }
+  .wa-input-icon { background: none; border: none; color: #aebac1; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2em; margin: 0 2px; padding: 0; }
+</style>
+<script>
+const waMessages = document.getElementById('wa-messages');
+if (waMessages) {
+  waMessages.scrollTop = waMessages.scrollHeight;
+}
+</script> 
