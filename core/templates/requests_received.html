@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Requests Received{% endblock %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-6 text-center tracking-tight">Requests Received</h2>
+<div class="grid grid-cols-1 md:grid-cols-1 gap-6 w-full">
+{% for req in received %}
+  {% if req.sender.profile %}
+    <div class="relative flex items-center h-[80px] w-full shadow transition-all duration-200 overflow-hidden border border-gray-200 bg-white px-4 py-2 rounded-xl">
+        <!-- Card Content -->
+        <div class="flex items-center w-full h-full gap-4">
+          <!-- Avatar -->
+          <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center bg-green-400 text-white font-bold text-2xl">
+            {% if req.sender.profile.avatar %}
+              <img src="{{ req.sender.profile.avatar.url }}" alt="Avatar" class="w-full h-full object-cover rounded-full">
+            {% else %}
+              {{ req.sender.username|first|upper }}
+            {% endif %}
+          </div>
+          <!-- Info -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-lg text-gray-900">{{ req.sender.username }}</span>
+            </div>
+            {% if req.sender.profile.skills %}
+              <div class="text-gray-500 text-sm truncate">{{ req.sender.profile.skills }}</div>
+            {% endif %}
+          </div>
+          <!-- Date -->
+          <div class="flex flex-col items-end justify-between h-full">
+            <span class="text-xs font-semibold mt-2 {% if req.status == 'Pending' %}text-yellow-700{% elif req.status == 'Accepted' %}text-green-700{% elif req.status == 'Rejected' %}text-red-700{% endif %}">{{ req.status }}</span>
+            <div class="flex items-center gap-1 mt-2" id="actions-{{ req.id }}">
+              {% if req.status == 'Pending' %}
+                <button onclick="respondToRequest({{ req.id }}, 'accept')" class="bg-green-500 text-white px-2 h-6 rounded text-xs font-semibold hover:bg-green-600 transition">Accept</button>
+                <button onclick="respondToRequest({{ req.id }}, 'reject')" class="bg-red-500 text-white px-2 h-6 rounded text-xs font-semibold hover:bg-red-600 transition">Reject</button>
+              {% elif req.status == 'Accepted' %}
+                <a href="{% url 'chat_list' %}?chat_id={{ req.id }}" class="bg-blue-800 text-white px-14 py-2 rounded text-xs font-semibold hover:bg-blue-600 transition flex items-center">Chat</a>
+              {% elif req.status == 'Rejected' %}
+                <span class="text-red-600 font-semibold text-xs">Rejected</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+  {% endif %}
+{% empty %}
+  <div class="col-span-full flex flex-col items-center justify-center py-16">
+    <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4 1 1-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+    <p class="text-gray-400 text-lg">No requests received at the moment.</p>
+  </div>
+{% endfor %}
+</div>
+
+
+<script>
+function respondToRequest(requestId, action) {
+  fetch(`/respond-request/${requestId}/?action=${action}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Update the status display
+        const statusElement = document.querySelector(`.status-${requestId}`);
+        const actionsElement = document.getElementById(`actions-${requestId}`);
+        
+        if (statusElement) {
+          statusElement.textContent = data.status;
+        }
+        
+        if (actionsElement) {
+          if (data.status === 'Accepted') {
+            actionsElement.innerHTML = '<a href="/chat-list/?chat_id=' + requestId + '" class="w-full bg-blue-500 text-white py-2 rounded-lg font-semibold hover:bg-blue-600 transition text-center">Chat</a>';
+          } else if (data.status === 'Rejected') {
+            actionsElement.innerHTML = '<span class="w-full text-red-600 font-semibold text-center">Rejected</span>';
+          }
+        }
+        
+        // Show success message
+        alert(data.message);
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while processing your request.');
+    });
+}
+</script>
+{% endblock %}

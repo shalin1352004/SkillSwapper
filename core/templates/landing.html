@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Welcome to SkillSwapper - Professional Skill Exchange Platform{% endblock %}
+{% block content %}
+<style>
+  .hero-section {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-radius: 24px;
+    padding: 4rem 2rem;
+    margin-bottom: 4rem;
+  }
+  
+  .feature-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border-color: rgba(102, 126, 234, 0.3);
+  }
+  
+  .feature-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: white;
+    font-size: 2rem;
+  }
+  
+  .cta-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 2rem;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    margin: 0.5rem;
+  }
+  
+  .cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    color: white;
+  }
+  
+  .cta-button.secondary {
+    background: rgba(255, 255, 255, 0.9);
+    color: #667eea;
+    border: 2px solid #667eea;
+  }
+  
+  .cta-button.secondary:hover {
+    background: #667eea;
+    color: white;
+  }
+  
+  .stats-section {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    margin: 3rem 0;
+  }
+  
+  .stat-item {
+    text-align: center;
+    padding: 1rem;
+  }
+  
+  .stat-number {
+    font-size: 3rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .testimonial-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 1rem 0;
+    transition: all 0.3s ease;
+  }
+  
+  .testimonial-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  }
+</style>
+
+<!-- Hero Section -->
+<div class="hero-section text-center">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-5xl md:text-6xl font-bold gradient-text mb-6">
+      <i class="fas fa-exchange-alt mr-4"></i>
+      SkillSwapper
+    </h1>
+    <p class="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto">
+      Connect with talented professionals and exchange skills to accelerate your career growth. 
+      Build meaningful connections while sharing your expertise.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+      {% if user.is_authenticated %}
+        <a href="{% url 'home' %}" class="cta-button">
+          <i class="fas fa-home mr-2"></i>
+          Go to Dashboard
+        </a>
+      {% else %}
+        <a href="{% url 'register' %}" class="cta-button">
+          <i class="fas fa-user-plus mr-2"></i>
+          Get Started Free
+        </a>
+        <a href="{% url 'login' %}" class="cta-button secondary">
+          <i class="fas fa-sign-in-alt mr-2"></i>
+          Sign In
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Stats Section -->
+<div class="stats-section">
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <div class="stat-item">
+      <div class="stat-number">500+</div>
+      <p class="text-gray-600 font-semibold">Active Professionals</p>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">1000+</div>
+      <p class="text-gray-600 font-semibold">Successful Connections</p>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">50+</div>
+      <p class="text-gray-600 font-semibold">Skill Categories</p>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">4.9</div>
+      <p class="text-gray-600 font-semibold">User Rating</p>
+    </div>
+  </div>
+</div>
+
+<!-- Features Section -->
+<div class="mb-8">
+  <h2 class="text-3xl md:text-4xl font-bold text-center gradient-text mb-12">
+    <i class="fas fa-star mr-4"></i>
+    Why Choose SkillSwapper?
+  </h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <i class="fas fa-handshake"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Skill Exchange</h3>
+      <p class="text-gray-600 leading-relaxed">
+        Connect with professionals who have the skills you need while offering your expertise in return. 
+        Create mutually beneficial partnerships.
+      </p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <i class="fas fa-users"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Professional Network</h3>
+      <p class="text-gray-600 leading-relaxed">
+        Build a network of like-minded professionals. Expand your connections and discover new opportunities 
+        in your field.
+      </p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <i class="fas fa-rocket"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Career Growth</h3>
+      <p class="text-gray-600 leading-relaxed">
+        Accelerate your career by learning from experts and sharing your knowledge. 
+        Grow together with the community.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- How It Works Section -->
+<div class="mb-8">
+  <h2 class="text-3xl md:text-4xl font-bold text-center gradient-text mb-12">
+    <i class="fas fa-play-circle mr-4"></i>
+    How It Works
+  </h2>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <span class="text-2xl font-bold">1</span>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-800 mb-3">Create Profile</h3>
+      <p class="text-gray-600 text-sm">
+        Sign up and create your professional profile with your skills and experience.
+      </p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <span class="text-2xl font-bold">2</span>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-800 mb-3">Discover Skills</h3>
+      <p class="text-gray-600 text-sm">
+        Browse through professionals and find the skills you need for your projects.
+      </p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <span class="text-2xl font-bold">3</span>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-800 mb-3">Connect & Chat</h3>
+      <p class="text-gray-600 text-sm">
+        Send connection requests and start conversations with potential collaborators.
+      </p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <span class="text-2xl font-bold">4</span>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-800 mb-3">Collaborate</h3>
+      <p class="text-gray-600 text-sm">
+        Work together, share knowledge, and achieve your goals as a team.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Testimonials Section -->
+<div class="mb-8">
+  <h2 class="text-3xl md:text-4xl font-bold text-center gradient-text mb-12">
+    <i class="fas fa-quote-left mr-4"></i>
+    What Our Users Say
+  </h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="testimonial-card">
+      <div class="flex items-center mb-4">
+        <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
+          S
+        </div>
+        <div>
+          <h4 class="font-semibold text-gray-800">Sarah Johnson</h4>
+          <p class="text-sm text-gray-500">UX Designer</p>
+        </div>
+      </div>
+      <p class="text-gray-600 italic">
+        "SkillSwapper helped me connect with amazing developers. I learned React while teaching them design principles. 
+        It's a win-win platform!"
+      </p>
+    </div>
+    <div class="testimonial-card">
+      <div class="flex items-center mb-4">
+        <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">
+          M
+        </div>
+        <div>
+          <h4 class="font-semibold text-gray-800">Mike Chen</h4>
+          <p class="text-sm text-gray-500">Full Stack Developer</p>
+        </div>
+      </div>
+      <p class="text-gray-600 italic">
+        "Found my perfect design partner through SkillSwapper. We've been collaborating on projects for months now. 
+        Highly recommended!"
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Final CTA Section -->
+<div class="text-center py-12">
+  <h2 class="text-3xl md:text-4xl font-bold gradient-text mb-6">
+    Ready to Start Your Journey?
+  </h2>
+  <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+    Join thousands of professionals who are already exchanging skills and growing their careers together.
+  </p>
+  <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+    {% if user.is_authenticated %}
+      <a href="{% url 'home' %}" class="cta-button">
+        <i class="fas fa-search mr-2"></i>
+        Explore Skills
+      </a>
+    {% else %}
+      <a href="{% url 'register' %}" class="cta-button">
+        <i class="fas fa-rocket mr-2"></i>
+        Join Now - It's Free
+      </a>
+      <a href="{% url 'login' %}" class="cta-button secondary">
+        <i class="fas fa-sign-in-alt mr-2"></i>
+        Already Have Account?
+      </a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

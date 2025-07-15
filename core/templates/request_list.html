@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Requests{% endblock %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">Incoming Requests</h2>
+{% for req in requests %}
+  <div class="bg-white p-4 mb-2 shadow rounded" id="request-{{ req.id }}">
+    <p><strong>{{ req.sender.username }}</strong> wants to collaborate on: <em>{{ req.skill_needed }}</em></p>
+    <p>Status: <span class="font-semibold status-{{ req.id }}">{{ req.status }}</span></p>
+    {% if req.status == 'Pending' %}
+      <div id="actions-{{ req.id }}">
+        <button onclick="respondToRequest({{ req.id }}, 'accept')" class="text-green-600 font-semibold mr-4">Accept</button>
+        <button onclick="respondToRequest({{ req.id }}, 'reject')" class="text-red-600 font-semibold">Reject</button>
+      </div>
+    {% endif %}
+  </div>
+{% empty %}
+  <p>No requests yet.</p>
+{% endfor %}
+
+<script>
+function respondToRequest(requestId, action) {
+  fetch(`/respond-request/${requestId}/?action=${action}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Update the status display
+        const statusElement = document.querySelector(`.status-${requestId}`);
+        const actionsElement = document.getElementById(`actions-${requestId}`);
+        
+        if (statusElement) {
+          statusElement.textContent = data.status;
+        }
+        
+        if (actionsElement) {
+          if (data.status === 'Accepted') {
+            actionsElement.innerHTML = '<a href="/chat-list/?chat_id=' + requestId + '" class="text-blue-600 font-semibold">Chat</a>';
+          } else if (data.status === 'Rejected') {
+            actionsElement.innerHTML = '<span class="text-red-600 font-semibold">Rejected</span>';
+          }
+        }
+        
+        // Show success message
+        alert(data.message);
+      } else {
+        alert('Error: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while processing your request.');
+    });
+}
+</script>
+{% endblock %}

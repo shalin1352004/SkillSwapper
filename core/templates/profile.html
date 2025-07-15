@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-white p-6 shadow rounded">
+  <h2 class="text-2xl font-bold mb-4">My Profile</h2>
+  <div class="mb-6 flex items-center">
+    {% if profile.avatar %}
+      <img src="{{ profile.avatar.url }}" alt="Avatar" class="w-16 h-16 rounded-full mr-4 object-cover">
+    {% else %}
+      <div class="w-16 h-16 rounded-full mr-4 bg-gray-300 flex items-center justify-center">
+        <span class="text-gray-500 text-xl">{{ profile.user.username|first|upper }}</span>
+      </div>
+    {% endif %}
+    <div>
+      <div class="font-semibold text-lg">{{ profile.user.username }}</div>
+      <div class="text-gray-500 text-sm">{{ profile.user.email }}</div>
+    </div>
+  </div>
+
+  <!-- Avatar -->
+  <div class="mb-4">
+    <label class="block font-semibold mb-1">Profile Photo</label>
+    {% if edit_field == 'avatar' %}
+      <form method="post" enctype="multipart/form-data" class="flex gap-2">
+        {% csrf_token %}
+        <input type="hidden" name="edit_field" value="avatar">
+        <input type="file" name="avatar" accept="image/*" class="flex-1 px-3 py-2 border rounded">
+        <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded">Upload</button>
+        <a href="{% url 'profile' %}" class="px-3 py-1 rounded border">Cancel</a>
+      </form>
+      <div class="text-sm text-gray-500 mt-1">
+        Supported formats: JPG, PNG, GIF. Max size: 5MB
+      </div>
+    {% else %}
+      <div class="flex justify-between items-center">
+        <span>{% if profile.avatar %}Photo uploaded{% else %}No photo uploaded{% endif %}</span>
+        <a href="{% url 'profile' %}?edit=avatar" class="text-blue-600 text-sm ml-2">
+          {% if profile.avatar %}Change{% else %}Upload{% endif %}
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Name -->
+  <div class="mb-4">
+    <label class="block font-semibold mb-1">Full Name</label>
+    {% if edit_field == 'name' %}
+      {% if error_message %}
+        <div class="bg-red-100 text-red-700 px-3 py-2 rounded mb-2">{{ error_message }}</div>
+      {% endif %}
+      <form method="post" class="flex gap-2">
+        {% csrf_token %}
+        <input type="hidden" name="edit_field" value="name">
+        <input type="text" name="name" value="{{ profile.name }}" class="w-full px-3 py-2 border rounded" required>
+        <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded">Save</button>
+        <a href="{% url 'profile' %}" class="px-3 py-1 rounded border">Cancel</a>
+      </form>
+    {% else %}
+      <div class="flex justify-between items-center">
+        <span>{{ profile.name|default:"-" }}</span>
+        <a href="{% url 'profile' %}?edit=name" class="text-blue-600 text-sm ml-2">Edit</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Experience -->
+  <div class="mb-4">
+    <label class="block font-semibold mb-1">Experience</label>
+    {% if edit_field == 'experience' %}
+      {% if error_message %}
+        <div class="bg-red-100 text-red-700 px-3 py-2 rounded mb-2">{{ error_message }}</div>
+      {% endif %}
+      <form method="post" class="flex gap-2">
+        {% csrf_token %}
+        <input type="hidden" name="edit_field" value="experience">
+        <input type="text" name="experience" value="{{ profile.experience }}" class="w-full px-3 py-2 border rounded" required>
+        <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded">Save</button>
+        <a href="{% url 'profile' %}" class="px-3 py-1 rounded border">Cancel</a>
+      </form>
+    {% else %}
+      <div class="flex justify-between items-center">
+        <span>{{ profile.experience|default:"-" }}</span>
+        <a href="{% url 'profile' %}?edit=experience" class="text-blue-600 text-sm ml-2">Edit</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Skills -->
+  <div class="mb-4">
+    <label class="block font-semibold mb-1">Skills</label>
+    {% if edit_field == 'skills' %}
+      {% if error_message %}
+        <div class="bg-red-100 text-red-700 px-3 py-2 rounded mb-2">{{ error_message }}</div>
+      {% endif %}
+      <form method="post" class="flex gap-2">
+        {% csrf_token %}
+        <input type="hidden" name="edit_field" value="skills">
+        <input type="text" name="skills" value="{{ profile.skills }}" placeholder="Enter skills, comma separated" class="w-full px-3 py-2 border rounded" required>
+        <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded">
+          {% if profile.skills %}Update{% else %}Add{% endif %}
+        </button>
+        <a href="{% url 'profile' %}" class="px-3 py-1 rounded border">Cancel</a>
+      </form>
+      <div class="text-sm text-gray-500 mt-1">
+        Current: {{ profile.skills|default:"None" }}
+      </div>
+    {% else %}
+      <div class="flex justify-between items-center">
+        <span>{{ profile.skills|default:"-" }}</span>
+        <a href="{% url 'profile' %}?edit=skills" class="text-blue-600 text-sm ml-2">
+          {% if profile.skills %}Update{% else %}Add{% endif %}
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Bio -->
+  <div class="mb-4">
+    <label class="block font-semibold mb-1">Bio</label>
+    {% if edit_field == 'bio' %}
+      {% if error_message %}
+        <div class="bg-red-100 text-red-700 px-3 py-2 rounded mb-2">{{ error_message }}</div>
+      {% endif %}
+      <form method="post" class="flex gap-2">
+        {% csrf_token %}
+        <input type="hidden" name="edit_field" value="bio">
+        <textarea name="bio" rows="3" class="w-full px-3 py-2 border rounded" required>{{ profile.bio }}</textarea>
+        <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded">Save</button>
+        <a href="{% url 'profile' %}" class="px-3 py-1 rounded border">Cancel</a>
+      </form>
+    {% else %}
+      <div class="flex justify-between items-center">
+        <span>{{ profile.bio|default:"-" }}</span>
+        <a href="{% url 'profile' %}?edit=bio" class="text-blue-600 text-sm ml-2">Edit</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Availability -->
+  <div class="mb-4">
+    <label class="block font-semibold mb-1">Availability</label>
+    <form method="post" class="inline">
+      {% csrf_token %}
+      <input type="hidden" name="edit_field" value="availability">
+      <button type="submit" class="px-3 py-1 rounded {{ profile.availability|yesno:'bg-green-500 text-white,bg-gray-300 text-gray-700' }}">
+        {% if profile.availability %}Available{% else %}Unavailable{% endif %}
+      </button>
+    </form>
+  </div>
+
+  <div class="mt-4">
+    <a href="{% url 'logout' %}" class="inline-block center bg-red-500 text-white px-12 py-2 rounded hover:bg-red-600">Logout</a>
+  </div>
+</div>
+{% endblock %}

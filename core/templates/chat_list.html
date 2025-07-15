@@ -1,0 +1,434 @@
+{% extends 'base.html' %}
+{% block title %}Chats{% endblock %}
+{% block content %}
+<style>
+  .whatsapp-container {
+    height: calc(100vh - 120px);
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    display: flex;
+    overflow: hidden;
+  }
+  
+  .chat-sidebar {
+    width: 350px;
+    border-right: 1px solid #e5e7eb;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .chat-header {
+    background: #075e54;
+    color: white;
+    padding: 16px 20px;
+    font-weight: 600;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .chat-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  .chat-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .chat-item:hover {
+    background: #f1f3f4;
+  }
+  
+  .chat-item.active {
+    background: #e8f5e8;
+  }
+  
+  .chat-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #25d366;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    margin-right: 12px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  
+  .chat-avatar:hover {
+    transform: scale(1.05);
+  }
+  
+  .chat-info {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .chat-name {
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .chat-preview {
+    color: #667781;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .chat-time {
+    color: #667781;
+    font-size: 12px;
+    margin-left: 8px;
+  }
+  
+  .chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #efeae2;
+  }
+  
+  .chat-main-header {
+    background: #075e54;
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .chat-main-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .chat-main-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #25d366;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  
+  .chat-main-avatar:hover {
+    transform: scale(1.05);
+  }
+  
+  .chat-main-name {
+    font-weight: 600;
+    font-size: 16px;
+  }
+  
+  .chat-main-status {
+    font-size: 13px;
+    opacity: 0.8;
+  }
+  
+  .chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: #efeae2;
+  }
+  
+  .message {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: flex-end;
+  }
+  
+  .message.own {
+    justify-content: flex-end;
+  }
+  
+  .message.other {
+    justify-content: flex-start;
+  }
+  
+  .message-bubble {
+    max-width: 65%;
+    padding: 8px 12px;
+    border-radius: 18px;
+    position: relative;
+    word-wrap: break-word;
+  }
+  
+  .message.own .message-bubble {
+    background: #dcf8c6;
+    color: #1a1a1a;
+    border-bottom-right-radius: 4px;
+  }
+  
+  .message.other .message-bubble {
+    background: white;
+    color: #1a1a1a;
+    border-bottom-left-radius: 4px;
+  }
+  
+  .message-time {
+    font-size: 11px;
+    color: #667781;
+    margin-top: 4px;
+    text-align: right;
+  }
+  
+  .message.other .message-time {
+    text-align: left;
+  }
+  
+  .chat-input-container {
+    background: #f0f0f0;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .chat-input {
+    flex: 1;
+    background: white;
+    border: none;
+    border-radius: 20px;
+    padding: 12px 16px;
+    outline: none;
+    font-size: 15px;
+  }
+  
+  .send-button {
+    background: #25d366;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .send-button:hover {
+    background: #128c7e;
+  }
+  
+  .no-chat-selected {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #efeae2;
+    color: #667781;
+    font-size: 18px;
+  }
+  
+  .back-button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .back-button:hover {
+    background: rgba(255,255,255,0.1);
+  }
+</style>
+
+<div class="whatsapp-container">
+  <!-- Chat Sidebar -->
+  <div class="chat-sidebar">
+    <div class="chat-header">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4 1 1-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+      </svg>
+      Chats
+    </div>
+    <div class="chat-list">
+      {% for req in chats %}
+        <div class="chat-item {% if selected_chat and selected_chat.id == req.id %}active{% endif %}" 
+             onclick="loadChat({{ req.id }}, '{{ req.other_user.username }}')">
+          <a href="{% url 'user_profile' req.other_user.id %}" class="chat-avatar" onclick="event.stopPropagation();">
+            {{ req.other_user.username|slice:":1"|upper }}
+          </a>
+          <div class="chat-info">
+            <div class="chat-name">{{ req.other_user.username }}</div>
+            <div class="chat-preview">{{ req.skill_needed }}</div>
+          </div>
+          <div class="chat-time">
+            {{ req.created_at|date:"M j" }}
+          </div>
+        </div>
+      {% empty %}
+        <div class="p-6 text-gray-500 text-center">No chats yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Chat Main Area -->
+  <div class="chat-main" id="chat-main">
+    {% if selected_chat %}
+      <!-- Chat Header -->
+      <div class="chat-main-header">
+        <div class="chat-main-header-left">
+          <a href="{% url 'user_profile' selected_chat.other_user.id %}" class="chat-main-avatar">
+            {{ selected_chat.other_user.username|slice:":1"|upper }}
+          </a>
+          <div>
+            <div class="chat-main-name">{{ selected_chat.other_user.username }}</div>
+            <div class="chat-main-status">{{ selected_chat.skill_needed }}</div>
+          </div>
+        </div>
+        <button class="back-button" onclick="showChatList()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Messages -->
+      <div class="chat-messages" id="chat-messages">
+        {% for msg in selected_chat_messages %}
+          <div class="message {% if msg.sender == user %}own{% else %}other{% endif %}">
+            <div class="message-bubble" style="position:relative;">
+              <div>{{ msg.message }}</div>
+              <div class="message-time">
+                {{ msg.timestamp|date:"g:i A" }}
+                {% if msg.sender == user %}
+                  {% if msg.read %}
+                    <span style="color:#34b7f1;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
+                  {% else %}
+                    <span style="color:#888;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="text-center text-gray-500 mt-8">No messages yet. Start the conversation!</div>
+        {% endfor %}
+      </div>
+
+      <!-- Input -->
+      <form method="post" action="{% url 'chat' selected_chat.id %}" class="chat-input-container">
+        {% csrf_token %}
+        <input type="text" name="message" class="chat-input" placeholder="Type a message..." required autocomplete="off">
+        <button type="submit" class="send-button">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+          </svg>
+        </button>
+      </form>
+    {% else %}
+      <div class="no-chat-selected">
+        <div class="text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4 1 1-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+          </svg>
+          <p>Select a chat to start messaging</p>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+function loadChat(chatId, username) {
+  // Update active chat item
+  document.querySelectorAll('.chat-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  event.currentTarget.classList.add('active');
+  
+  // Load chat content via AJAX
+  fetch(`/chat-ajax/${chatId}/`)
+    .then(response => response.text())
+    .then(html => {
+      document.getElementById('chat-main').innerHTML = html;
+      scrollToBottom();
+      setupChatFormAjax(chatId);
+    })
+    .catch(error => {
+      console.error('Error loading chat:', error);
+    });
+}
+
+function scrollToBottom() {
+  const messagesContainer = document.getElementById('chat-messages');
+  if (messagesContainer) {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+}
+
+function showChatList() {
+  // Reload the page to show chat list
+  window.location.href = "{% url 'chat_list' %}";
+}
+
+function setupChatFormAjax(chatId) {
+  const chatMain = document.getElementById('chat-main');
+  if (!chatMain) return;
+  const form = chatMain.querySelector('form.chat-input-container');
+  if (!form) return;
+  form.onsubmit = function(e) {
+    e.preventDefault();
+    const formData = new FormData(form);
+    fetch(`/chat-ajax/${chatId}/`, {
+      method: 'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      body: formData
+    })
+    .then(response => response.text())
+    .then(html => {
+      chatMain.innerHTML = html;
+      scrollToBottom();
+      setupChatFormAjax(chatId); // re-bind after reload
+    });
+    return false;
+  };
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  scrollToBottom();
+  // If a chat is already loaded, set up AJAX form
+  const chatMain = document.getElementById('chat-main');
+  if (chatMain) {
+    const chatId = chatMain.querySelector('form.chat-input-container')?.action.match(/chat\/(\d+)/)?.[1];
+    if (chatId) setupChatFormAjax(chatId);
+  }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Chat{% endblock %}
+{% block content %}
+{% load static %}
+<style>
+  .fixed-chatbox {
+    position: fixed;
+    bottom: 0;
+    right: 2rem;
+    width: 350px;
+    max-width: 95vw;
+    z-index: 50;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+    border-radius: 1rem 1rem 0 0;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+  }
+  .chat-header {
+    background: #2563eb;
+    color: #fff;
+    padding: 1rem;
+    border-radius: 1rem 1rem 0 0;
+    font-weight: bold;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background: #f3f4f6;
+  }
+  .chat-input-row {
+    display: flex;
+    border-top: 1px solid #e5e7eb;
+    padding: 0.5rem;
+    background: #fff;
+    border-radius: 0 0 1rem 1rem;
+  }
+  .chat-message-own {
+    text-align: right;
+  }
+  .chat-message-other {
+    text-align: left;
+  }
+</style>
+<div class="fixed-chatbox">
+  <div class="chat-header">
+    <span>
+      Chat with
+      {% if request_obj.sender == user %}
+        {{ request_obj.receiver.username }}
+      {% else %}
+        {{ request_obj.sender.username }}
+      {% endif %}
+    </span>
+    <a href="{% url 'chat_list' %}" class="text-white text-sm underline">Back to Chats</a>
+  </div>
+  <div class="chat-messages" id="chat-messages" style="background: url('{% static 'whatsapp-bg.png' %}') repeat; background-size: 400px auto;">
+    {% for msg in messages %}
+      <div class="{% if msg.sender == user %}chat-message-own{% else %}chat-message-other{% endif %} mb-2">
+        <div class="inline-block px-3 py-2 rounded-lg {% if msg.sender == user %}bg-blue-500 text-white{% else %}bg-gray-200 text-gray-900{% endif %}">
+          <span class="block text-xs font-semibold mb-1">{{ msg.sender.username }}</span>
+          <span>{{ msg.message }}</span>
+          <span class="block text-xs text-gray-400 mt-1">{{ msg.timestamp|date:"SHORT_DATETIME_FORMAT" }}</span>
+        </div>
+      </div>
+    {% empty %}
+      <div class="text-gray-400 text-center">No messages yet.</div>
+    {% endfor %}
+  </div>
+  <form method="post" class="chat-input-row">
+    {% csrf_token %}
+    <input type="text" name="message" class="flex-1 px-3 py-2 border rounded-l focus:outline-none" placeholder="Type your message..." required autocomplete="off">
+    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r">Send</button>
+  </form>
+</div>
+<script>
+  // Scroll to bottom on load
+  const chatMessages = document.getElementById('chat-messages');
+  if (chatMessages) {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // --- AJAX Live Chat ---
+  const chatForm = document.querySelector('.chat-input-row');
+  const chatBox = document.querySelector('.fixed-chatbox');
+  const reqId = {{ request_obj.id }};
+
+  // Poll for new messages every 2 seconds
+  function pollMessages() {
+    fetch(`/chat-ajax/${reqId}/`)
+      .then(response => response.text())
+      .then(html => {
+        // Extract only the messages div from the returned HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        const newMessages = tempDiv.querySelector('#chat-messages');
+        if (newMessages && chatMessages) {
+          chatMessages.innerHTML = newMessages.innerHTML;
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+      });
+  }
+  setInterval(pollMessages, 2000);
+
+  // AJAX send message
+  if (chatForm) {
+    chatForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(chatForm);
+      fetch(window.location.pathname, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: formData
+      })
+      .then(response => response.text())
+      .then(html => {
+        // Extract only the messages div from the returned HTML
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        const newMessages = tempDiv.querySelector('#chat-messages');
+        if (newMessages && chatMessages) {
+          chatMessages.innerHTML = newMessages.innerHTML;
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        chatForm.reset();
+      });
+    });
+  }
+</script>
+{% endblock %}

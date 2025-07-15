@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Requests Sent{% endblock %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">Requests Sent</h2>
+{% for req in sent %}
+  {% if req.receiver.profile %}
+    <div class="bg-white p-4 mb-2 shadow rounded">
+      <div>
+        <span class="font-semibold">To:</span> {{ req.receiver.username }}
+        <span class="ml-2 font-semibold">Status:</span> {{ req.status }}
+      </div>
+      {% if req.status == 'Pending' %}
+        <span class="ml-4 text-gray-500">Awaiting response</span>
+      {% elif req.status == 'Accepted' %}
+        <a href="{% url 'chat_list' %}?chat_id={{ req.id }}" class="ml-4 text-blue-600 font-semibold">Chat</a>
+      {% elif req.status == 'Rejected' %}
+        <span class="ml-4 text-red-600 font-semibold">Rejected</span>
+      {% endif %}
+    </div>
+  {% endif %}
+{% empty %}
+  <p>No requests sent.</p>
+{% endfor %}
+
+{% endblock %}
