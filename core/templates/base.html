@@ -1,4 +1,5 @@
 {% load static %}
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -17,6 +18,7 @@
       min-height: 100vh;
       margin: 0;
       padding: 0;
+      padding-top: 60px; /* Adjust if navbar height changes */
     }
     
     .glass-card {
@@ -141,6 +143,120 @@
       margin: 1rem;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
+
+    /* Navbar styles */
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #333;
+        padding: 0.5rem 1rem;
+        position: relative;
+        z-index: 1001;
+    }
+    .navbar-logo {
+        color: #fff;
+        font-size: 1.5rem;
+        text-decoration: none;
+    }
+    .navbar-links {
+        display: flex;
+        gap: 1rem;
+    }
+    .navbar-links a {
+        color: #fff;
+        text-decoration: none;
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        transition: background 0.2s;
+    }
+    .navbar-links a:hover {
+        background: #444;
+    }
+    .navbar-hamburger {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        background: none;
+        border: none;
+        outline: none;
+    }
+    .navbar-hamburger span {
+        height: 3px;
+        width: 25px;
+        background: #fff;
+        margin: 4px 0;
+        border-radius: 2px;
+        transition: 0.3s;
+        display: block;
+    }
+    .navbar-menu-label {
+        color: #fff;
+        font-size: 1.1rem;
+        margin-left: 8px;
+        display: none;
+    }
+    @media (max-width: 768px) {
+        .navbar-links {
+            display: none;
+            flex-direction: column;
+            width: 100vw;
+            background: #222;
+            position: absolute;
+            top: 60px;
+            left: 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            padding: 1rem 0;
+            border-radius: 0 0 8px 8px;
+            z-index: 1002;
+        }
+        .navbar-links.active {
+            display: flex;
+            animation: dropdownFade 0.3s;
+        }
+        .navbar-links a {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 0;
+            border-bottom: 1px solid #333;
+        }
+        .navbar-links a:last-child {
+            border-bottom: none;
+        }
+        .navbar-hamburger {
+            display: flex;
+        }
+        .navbar-menu-label {
+            display: inline;
+        }
+    }
+    @keyframes dropdownFade {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .navbar-logo-text {
+        font-size: clamp(1rem, 2vw, 1.5rem);
+        white-space: nowrap;
+        overflow-wrap: break-word;
+        min-width: 0;
+    }
+    .navbar-links {
+        flex-wrap: wrap;
+        min-width: 0;
+    }
+    .navbar-links a {
+        font-size: clamp(1rem, 2vw, 1.1rem);
+        overflow-wrap: break-word;
+        min-width: 0;
+    }
+    @media (max-width: 768px) {
+        .navbar-logo-text {
+            font-size: clamp(0.9rem, 4vw, 1.2rem);
+        }
+        .navbar-links a {
+            font-size: clamp(0.9rem, 4vw, 1.1rem);
+        }
+    }
   </style>
 </head>
 <body class="text-gray-900">
@@ -152,55 +268,39 @@
   </div>
 
   <!-- Modern Navigation -->
-  <nav class="glass-card mx-4 mt-4 mb-6 p-6 flex justify-between items-center">
-    <a href="{% url 'home' %}" class="text-3xl font-bold gradient-text flex items-center hover-lift">
-      <i class="fas fa-exchange-alt mr-3 text-2xl"></i>
-      SkillSwapper
-    </a>
-    <div class="flex items-center space-x-6">
-      {% if user.is_authenticated %}
-        <a href="{% url 'home' %}" class="nav-link flex items-center px-4 py-2 rounded-xl text-gray-700 hover:text-purple-600 transition-all duration-300" title="Home">
-          <i class="fas fa-home mr-2"></i>
-          <span class="hidden sm:inline">Home</span>
-        </a>
-        <a href="{% url 'profile' %}" class="nav-link flex items-center px-4 py-2 rounded-xl text-gray-700 hover:text-purple-600 transition-all duration-300" title="Profile">
-          <i class="fas fa-user mr-2"></i>
-          <span class="hidden sm:inline">{{ user.username }}</span>
-        </a>
-        <a href="{% url 'requests_sent' %}" class="nav-link flex items-center px-4 py-2 rounded-xl text-gray-700 hover:text-orange-600 transition-all duration-300" title="Sent Requests">
-          <i class="fas fa-paper-plane mr-2"></i>
-          <span class="hidden sm:inline">Sent</span>
-        </a>
-        <a href="{% url 'requests_received' %}" class="nav-link flex items-center px-4 py-2 rounded-xl text-gray-700 hover:text-green-600 transition-all duration-300 relative" title="Received Requests">
-          <i class="fas fa-bell mr-2 {% if unseen_accepted_request_count %}buzz-bell{% endif %}"></i>
-          <span class="hidden sm:inline">Received</span>
-          {% if unseen_accepted_request_count %}
-            <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold border-2 border-white">{{ unseen_accepted_request_count }}</span>
-          {% endif %}
-        </a>
-        <a href="{% url 'chat_list' %}" class="nav-link flex items-center px-4 py-2 rounded-xl text-gray-700 hover:text-purple-600 transition-all duration-300 relative" title="Chats">
-          <i class="fas fa-comments mr-2"></i>
-          <span class="hidden sm:inline">Chats</span>
-          {% if unread_chat_count %}
-            <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold border-2 border-white">{{ unread_chat_count }}</span>
-          {% endif %}
-        </a>
-        <a href="{% url 'logout' %}" class="nav-link flex items-center px-4 py-2 rounded-xl text-gray-700 hover:text-red-600 transition-all duration-300" title="Logout">
-          <i class="fas fa-sign-out-alt mr-2"></i>
-          <span class="hidden sm:inline">Logout</span>
-        </a>
-      {% else %}
-        <a href="{% url 'login' %}" class="nav-link flex items-center px-4 py-2 rounded-xl text-gray-700 hover:text-blue-600 transition-all duration-300" title="Login">
-          <i class="fas fa-sign-in-alt mr-2"></i>
-          <span class="hidden sm:inline">Login</span>
-        </a>
-        <a href="{% url 'register' %}" class="gradient-bg text-white px-6 py-2 rounded-xl hover-lift transition-all duration-300" title="Register">
-          <i class="fas fa-user-plus mr-2"></i>
-          <span class="hidden sm:inline">Register</span>
-        </a>
-      {% endif %}
+  <nav class="navbar" style="position:fixed;top:0;left:0;width:100%;z-index:1002;">
+    <a href="/" class="navbar-logo">SkillSwapper</a>
+    <div class="navbar-hamburger" id="navbar-hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    <div class="navbar-links" id="navbar-links">
+      <a href="{% url 'home' %}">Home</a>
+      <a href="{% url 'profile' %}">Profile</a>
+      <a href="{% url 'chat_list' %}">Chat</a>
+      <a href="{% url 'logout' %}">Logout</a>
     </div>
   </nav>
+  <script>
+    const hamburger = document.getElementById('navbar-hamburger');
+    const navLinks = document.getElementById('navbar-links');
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+    });
+    Array.from(navLinks.getElementsByTagName('a')).forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          navLinks.classList.remove('active');
+        }
+      });
+    });
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) {
+        navLinks.classList.remove('active');
+      }
+    });
+  </script>
   
   <main class="p-6">
     <div class="content-wrapper">

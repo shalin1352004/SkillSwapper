@@ -2,128 +2,187 @@
 {% block title %}Chats{% endblock %}
 {% block content %}
 <style>
-  .whatsapp-container {
-    height: calc(100vh - 120px);
-    max-width: 1200px;
-    margin: 0 auto;
+  html, body {
+    height: 100%;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    background: #e9ebee !important;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+  }
+  .chat-app-bg {
+    background: url('https://www.transparenttextures.com/patterns/cubes.png') repeat;
+    background-size: 300px 300px;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    opacity: 0.12;
+    pointer-events: none;
+  }
+  .chat-app-container {
+    min-height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #e9ebee;
+    position: relative;
+    z-index: 1;
+  }
+  .chat-app-box {
     background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    width: 100%;
+    max-width: 1100px;
+    height: 90vh;
+    min-height: 600px;
     display: flex;
     overflow: hidden;
+    position: relative;
+    transition: box-shadow 0.2s;
   }
-  
   .chat-sidebar {
-    width: 350px;
-    border-right: 1px solid #e5e7eb;
-    background: #f8f9fa;
+    width: 340px;
+    min-width: 220px;
+    max-width: 400px;
+    background: #f7f8fa;
+    border-right: 1px solid #e0e0e0;
     display: flex;
     flex-direction: column;
+    z-index: 2;
+    transition: all 0.3s;
   }
-  
-  .chat-header {
-    background: #075e54;
-    color: white;
-    padding: 16px 20px;
-    font-weight: 600;
-    font-size: 18px;
+  .sidebar-header {
+    background: #f7f8fa;
+    color: #222e35;
+    padding: 18px 20px 10px 20px;
+    font-weight: 700;
+    font-size: 20px;
     display: flex;
     align-items: center;
     gap: 12px;
+    border-bottom: 1px solid #e0e0e0;
   }
-  
+  .sidebar-search {
+    padding: 10px 16px 10px 16px;
+    background: #f7f8fa;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  .sidebar-search input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #e9ebee;
+    color: #222e35;
+    font-size: 1em;
+    outline: none;
+    transition: box-shadow 0.2s;
+  }
+  .sidebar-search input:focus {
+    box-shadow: 0 0 0 2px #25d36633;
+  }
   .chat-list {
     flex: 1;
     overflow-y: auto;
+    background: #f7f8fa;
   }
-  
   .chat-item {
     display: flex;
     align-items: center;
-    padding: 12px 16px;
-    border-bottom: 1px solid #e5e7eb;
+    padding: 14px 18px;
+    border-bottom: 1px solid #ececec;
     cursor: pointer;
     transition: background-color 0.2s;
+    background: transparent;
+    position: relative;
   }
-  
-  .chat-item:hover {
-    background: #f1f3f4;
+  .chat-item:hover, .chat-item.active {
+    background: #e9ebee;
   }
-  
-  .chat-item.active {
-    background: #e8f5e8;
-  }
-  
   .chat-avatar {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     background: #25d366;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #fff;
     font-weight: bold;
     font-size: 18px;
-    margin-right: 12px;
+    margin-right: 14px;
     cursor: pointer;
-    transition: transform 0.2s;
+    flex-shrink: 0;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   }
-  
-  .chat-avatar:hover {
-    transform: scale(1.05);
-  }
-  
   .chat-info {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
-  
+  .chat-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+  }
   .chat-name {
     font-weight: 600;
-    color: #1a1a1a;
-    margin-bottom: 4px;
+    color: #222e35;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: 1em;
   }
-  
+  .chat-time {
+    color: #aebac1;
+    font-size: 12px;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
   .chat-preview {
-    color: #667781;
+    color: #7a869a;
     font-size: 14px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  
-  .chat-time {
-    color: #667781;
-    font-size: 12px;
-    margin-left: 8px;
-  }
-  
   .chat-main {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: #efeae2;
+    background: url('https://www.transparenttextures.com/patterns/cubes.png') repeat #f7f8fa;
+    background-size: 300px 300px;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s;
+    min-width: 0;
+    min-height: 0;
   }
-  
   .chat-main-header {
-    background: #075e54;
-    color: white;
-    padding: 16px 20px;
+    background: #fff;
+    color: #222e35;
+    padding: 14px 18px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    border-bottom: 1px solid #ececec;
+    min-height: 56px;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
   }
-  
   .chat-main-header-left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
   }
-  
   .chat-main-avatar {
     width: 40px;
     height: 40px;
@@ -132,244 +191,352 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #fff;
     font-weight: bold;
     cursor: pointer;
-    transition: transform 0.2s;
+    font-size: 1.2em;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   }
-  
-  .chat-main-avatar:hover {
-    transform: scale(1.05);
-  }
-  
   .chat-main-name {
     font-weight: 600;
-    font-size: 16px;
+    font-size: 1.1em;
+    color: #222e35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  
   .chat-main-status {
-    font-size: 13px;
-    opacity: 0.8;
+    font-size: 0.95em;
+    color: #7a869a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  
+  .chat-main-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .chat-main-actions svg {
+    color: #aebac1;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .chat-main-actions svg:hover {
+    color: #25d366;
+  }
   .chat-messages {
     flex: 1;
-    padding: 20px;
+    padding: 18px 12px 18px 12px;
     overflow-y: auto;
-    background: #efeae2;
+    background: transparent;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    scroll-behavior: smooth;
+    min-height: 0;
   }
-  
+  .date-separator {
+    text-align: center;
+    margin: 18px 0 10px 0;
+    color: #aebac1;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    position: relative;
+  }
+  .date-separator:before, .date-separator:after {
+    content: '';
+    display: inline-block;
+    width: 30px;
+    height: 1px;
+    background: #e0e0e0;
+    vertical-align: middle;
+    margin: 0 8px;
+  }
   .message {
-    margin-bottom: 12px;
+    margin-bottom: 2px;
     display: flex;
     align-items: flex-end;
   }
-  
   .message.own {
     justify-content: flex-end;
   }
-  
   .message.other {
     justify-content: flex-start;
   }
-  
   .message-bubble {
-    max-width: 65%;
-    padding: 8px 12px;
-    border-radius: 18px;
+    max-width: 85vw;
+    padding: 10px 16px 8px 16px;
+    border-radius: 16px 16px 4px 16px;
     position: relative;
     word-wrap: break-word;
+    font-size: 1.05em;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+    color: #222e35;
+    min-width: 0;
+    transition: background 0.2s;
+    margin-bottom: 2px;
+    background: #f1f0f0;
   }
-  
   .message.own .message-bubble {
-    background: #dcf8c6;
-    color: #1a1a1a;
-    border-bottom-right-radius: 4px;
+    background: #25d366;
+    color: #fff;
+    border-radius: 16px 16px 16px 4px;
+    align-items: flex-end;
   }
-  
   .message.other .message-bubble {
-    background: white;
-    color: #1a1a1a;
-    border-bottom-left-radius: 4px;
+    background: #f1f0f0;
+    color: #222e35;
+    border-radius: 16px 16px 4px 16px;
+    align-items: flex-start;
   }
-  
+  .message-bubble:hover {
+    background: #e9ebee;
+  }
   .message-time {
     font-size: 11px;
-    color: #667781;
+    color: #7a869a;
     margin-top: 4px;
     text-align: right;
+    display: block;
   }
-  
-  .message.other .message-time {
-    text-align: left;
-  }
-  
   .chat-input-container {
-    background: #f0f0f0;
-    padding: 16px 20px;
+    background: #fff;
+    padding: 10px 12px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
+    border-top: 1px solid #ececec;
+    position: relative;
+    width: 100%;
+    z-index: 2;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
   }
-  
+  .chat-input-icon {
+    background: none;
+    border: none;
+    color: #aebac1;
+    font-size: 1.4em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0 6px;
+    transition: color 0.2s;
+  }
+  .chat-input-icon:hover {
+    color: #25d366;
+  }
   .chat-input {
     flex: 1;
-    background: white;
+    background: #e9ebee;
     border: none;
     border-radius: 20px;
     padding: 12px 16px;
     outline: none;
-    font-size: 15px;
+    font-size: 1em;
+    color: #222e35;
+    min-width: 0;
   }
-  
   .send-button {
     background: #25d366;
     color: white;
     border: none;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.2s;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 1.2em;
   }
-  
   .send-button:hover {
-    background: #128c7e;
+    background: #1fa855;
   }
-  
-  .no-chat-selected {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #efeae2;
-    color: #667781;
-    font-size: 18px;
-  }
-  
-  .back-button {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-  }
-  
-  .back-button:hover {
-    background: rgba(255,255,255,0.1);
+  @media (max-width: 900px) {
+    .chat-app-box {
+      border-radius: 0;
+      margin: 0;
+      max-width: 100vw;
+      height: 100vh;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .chat-sidebar {
+      width: 100vw;
+      min-width: 0;
+      max-width: 100vw;
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 2;
+      transform: translateX(0);
+      border-radius: 0;
+    }
+    .chat-sidebar.hide-mobile {
+      transform: translateX(-100vw);
+      pointer-events: none;
+    }
+    .chat-main {
+      width: 100vw;
+      min-width: 0;
+      height: 100%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: #f7f8fa;
+      z-index: 3;
+      transform: translateX(100vw);
+      border-radius: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .chat-main.show-mobile {
+      transform: translateX(0);
+    }
+    .chat-input-container {
+      width: 100%;
+      padding: 10px 6px;
+      border-radius: 0;
+      position: relative;
+      left: 0;
+      bottom: 0;
+    }
+    .chat-messages {
+      margin-bottom: 0;
+    }
   }
 </style>
-
-<div class="whatsapp-container">
-  <!-- Chat Sidebar -->
-  <div class="chat-sidebar">
-    <div class="chat-header">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4 1 1-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-      </svg>
-      Chats
-    </div>
-    <div class="chat-list">
-      {% for req in chats %}
-        <div class="chat-item {% if selected_chat and selected_chat.id == req.id %}active{% endif %}" 
-             onclick="loadChat({{ req.id }}, '{{ req.other_user.username }}')">
-          <a href="{% url 'user_profile' req.other_user.id %}" class="chat-avatar" onclick="event.stopPropagation();">
-            {{ req.other_user.username|slice:":1"|upper }}
-          </a>
-          <div class="chat-info">
-            <div class="chat-name">{{ req.other_user.username }}</div>
-            <div class="chat-preview">{{ req.skill_needed }}</div>
-          </div>
-          <div class="chat-time">
-            {{ req.created_at|date:"M j" }}
-          </div>
-        </div>
-      {% empty %}
-        <div class="p-6 text-gray-500 text-center">No chats yet.</div>
-      {% endfor %}
-    </div>
-  </div>
-
-  <!-- Chat Main Area -->
-  <div class="chat-main" id="chat-main">
-    {% if selected_chat %}
-      <!-- Chat Header -->
-      <div class="chat-main-header">
-        <div class="chat-main-header-left">
-          <a href="{% url 'user_profile' selected_chat.other_user.id %}" class="chat-main-avatar">
-            {{ selected_chat.other_user.username|slice:":1"|upper }}
-          </a>
-          <div>
-            <div class="chat-main-name">{{ selected_chat.other_user.username }}</div>
-            <div class="chat-main-status">{{ selected_chat.skill_needed }}</div>
-          </div>
-        </div>
-        <button class="back-button" onclick="showChatList()">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
+<div class="chat-app-bg"></div>
+<div class="chat-app-container">
+  <div class="chat-app-box">
+    <!-- Chat Sidebar -->
+    <div class="chat-sidebar" id="chat-sidebar">
+      <div class="sidebar-header">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4 1 1-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+        Chats
+        <span style="flex:1"></span>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:22px;height:22px;cursor:pointer;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </div>
-
-      <!-- Messages -->
-      <div class="chat-messages" id="chat-messages">
-        {% for msg in selected_chat_messages %}
-          <div class="message {% if msg.sender == user %}own{% else %}other{% endif %}">
-            <div class="message-bubble" style="position:relative;">
-              <div>{{ msg.message }}</div>
-              <div class="message-time">
-                {{ msg.timestamp|date:"g:i A" }}
-                {% if msg.sender == user %}
-                  {% if msg.read %}
-                    <span style="color:#34b7f1;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
-                  {% else %}
-                    <span style="color:#888;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
-                  {% endif %}
-                {% endif %}
+      <div class="sidebar-search">
+        <input type="text" placeholder="Search or start a new chat" />
+      </div>
+      <div class="chat-list">
+        {% for req in chats %}
+          <div class="chat-item {% if selected_chat and selected_chat.id == req.id %}active{% endif %}" 
+               onclick="openChatMobile({{ req.id }}, '{{ req.other_user.username }}')">
+            <a href="{% url 'user_profile' req.other_user.id %}" class="chat-avatar" onclick="event.stopPropagation();">
+              {{ req.other_user.username|slice:":1"|upper }}
+            </a>
+            <div class="chat-info">
+              <div class="chat-name-row">
+                <span class="chat-name">{{ req.other_user.username }}</span>
+                <span class="chat-time">{{ req.created_at|date:"g:i A" }}</span>
               </div>
+              <span class="chat-preview">{{ req.skill_needed }}</span>
             </div>
           </div>
         {% empty %}
-          <div class="text-center text-gray-500 mt-8">No messages yet. Start the conversation!</div>
+          <div class="p-6 text-gray-500 text-center">No chats yet.</div>
         {% endfor %}
       </div>
-
-      <!-- Input -->
-      <form method="post" action="{% url 'chat' selected_chat.id %}" class="chat-input-container">
-        {% csrf_token %}
-        <input type="text" name="message" class="chat-input" placeholder="Type a message..." required autocomplete="off">
-        <button type="submit" class="send-button">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-          </svg>
-        </button>
-      </form>
-    {% else %}
-      <div class="no-chat-selected">
-        <div class="text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4 1 1-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-          </svg>
-          <p>Select a chat to start messaging</p>
+    </div>
+    <!-- Chat Main Area -->
+    <div class="chat-main" id="chat-main">
+      {% if selected_chat %}
+        <!-- Chat Header -->
+        <div class="chat-main-header">
+          <div class="chat-main-header-left">
+            <button class="back-button-mobile" id="back-button-mobile" onclick="showChatListMobile()" style="background:none;border:none;color:#aebac1;padding:0 8px 0 0;display:flex;align-items:center;">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+            </button>
+            <a href="{% url 'user_profile' selected_chat.other_user.id %}" class="chat-main-avatar">
+              {{ selected_chat.other_user.username|slice:":1"|upper }}
+            </a>
+            <div style="min-width:0;">
+              <div class="chat-main-name">{{ selected_chat.other_user.username }}</div>
+              <div class="chat-main-status">last seen today at 11:07 AM</div>
+            </div>
+          </div>
+          <div class="chat-main-actions">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A2 2 0 0122 9.618v4.764a2 2 0 01-2.447 1.894L15 14M4 6v12a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A2 2 0 0122 9.618v4.764a2 2 0 01-2.447 1.894L15 14M4 6v12a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.4 15A7.97 7.97 0 0020 12c0-4.418-4.03-8-9-8S2 7.582 2 12c0 1.042.16 2.04.46 2.97"/></svg>
+          </div>
         </div>
-      </div>
-    {% endif %}
+        <!-- Messages -->
+        <div class="chat-messages" id="chat-messages">
+          {% regroup selected_chat_messages by timestamp.date as day_groups %}
+          {% for day in day_groups %}
+            <div class="date-separator">{{ day.grouper|date:"l, F j, Y" }}</div>
+            {% for msg in day.list %}
+              <div class="message {% if msg.sender == user %}own{% else %}other{% endif %}">
+                <div class="message-bubble">
+                  <div>{{ msg.message }}</div>
+                  <span class="message-time">{{ msg.timestamp|date:"g:i A" }}</span>
+                  {% if msg.sender == user %}
+                    {% if msg.read %}
+                      <span style="color:#34b7f1;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
+                    {% else %}
+                      <span style="color:#888;font-size:13px;vertical-align:middle;letter-spacing:-2px;">&#10003;&#10003;</span>
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          {% endfor %}
+        </div>
+        <!-- Input -->
+        <form method="post" action="{% url 'chat' selected_chat.id %}" class="chat-input-container" id="chat-input-container">
+          {% csrf_token %}
+          <button type="button" class="chat-input-icon" tabindex="-1" aria-label="Emoji"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg></button>
+          <button type="button" class="chat-input-icon" tabindex="-1" aria-label="Attach"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.586-6.586a4 4 0 10-5.656-5.656l-6.586 6.586a6 6 0 108.485 8.485l6.586-6.586"/></svg></button>
+          <input type="text" name="message" class="chat-input" placeholder="Type a message..." required autocomplete="off">
+          <button type="submit" class="send-button" aria-label="Send">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+            </svg>
+          </button>
+        </form>
+      {% else %}
+        <div class="no-chat-selected">
+          <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8l-4 1 1-4A8.96 8.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            <p>Select a chat to start messaging</p>
+          </div>
+        </div>
+      {% endif %}
+    </div>
   </div>
 </div>
-
 <script>
-function loadChat(chatId, username) {
+function openChatMobile(chatId, username) {
+  if (window.innerWidth <= 900) {
+    document.getElementById('chat-sidebar').classList.add('hide-mobile');
+    document.getElementById('chat-main').classList.add('show-mobile');
+  }
   // Update active chat item
   document.querySelectorAll('.chat-item').forEach(item => {
     item.classList.remove('active');
   });
   event.currentTarget.classList.add('active');
-  
   // Load chat content via AJAX
   fetch(`/chat-ajax/${chatId}/`)
     .then(response => response.text())
@@ -382,53 +549,49 @@ function loadChat(chatId, username) {
       console.error('Error loading chat:', error);
     });
 }
-
+function showChatListMobile() {
+  if (window.innerWidth <= 900) {
+    document.getElementById('chat-sidebar').classList.remove('hide-mobile');
+    document.getElementById('chat-main').classList.remove('show-mobile');
+  }
+}
 function scrollToBottom() {
   const messagesContainer = document.getElementById('chat-messages');
   if (messagesContainer) {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 }
-
-function showChatList() {
-  // Reload the page to show chat list
-  window.location.href = "{% url 'chat_list' %}";
-}
-
 function setupChatFormAjax(chatId) {
   const chatMain = document.getElementById('chat-main');
   if (!chatMain) return;
-  const form = chatMain.querySelector('form.chat-input-container');
+  const form = chatMain.querySelector('form');
   if (!form) return;
-  form.onsubmit = function(e) {
+  form.addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(form);
     fetch(`/chat-ajax/${chatId}/`, {
       method: 'POST',
+      body: formData,
       headers: {
         'X-Requested-With': 'XMLHttpRequest',
       },
-      body: formData
     })
-    .then(response => response.text())
-    .then(html => {
-      chatMain.innerHTML = html;
-      scrollToBottom();
-      setupChatFormAjax(chatId); // re-bind after reload
-    });
-    return false;
-  };
+      .then(response => response.text())
+      .then(html => {
+        chatMain.innerHTML = html;
+        scrollToBottom();
+        setupChatFormAjax(chatId);
+      });
+  });
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-  scrollToBottom();
-  // If a chat is already loaded, set up AJAX form
-  const chatMain = document.getElementById('chat-main');
-  if (chatMain) {
-    const chatId = chatMain.querySelector('form.chat-input-container')?.action.match(/chat\/(\d+)/)?.[1];
-    if (chatId) setupChatFormAjax(chatId);
+window.addEventListener('resize', function() {
+  if (window.innerWidth > 900) {
+    document.getElementById('chat-sidebar').classList.remove('hide-mobile');
+    document.getElementById('chat-main').classList.remove('show-mobile');
   }
 });
+document.addEventListener('DOMContentLoaded', function() {
+  scrollToBottom();
+});
 </script>
-
 {% endblock %}
