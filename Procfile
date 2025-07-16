@@ -1,0 +1,1 @@
+web: gunicorn SkillSwapper.wsgi:application --log-file - 

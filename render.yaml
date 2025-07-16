@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: skill-swapper-web
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn SkillSwapper.wsgi:application --log-file -"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: SkillSwapper.settings
+      - key: PYTHON_VERSION
+        value: 3.11
+    staticPublishPath: staticfiles
+    plan: free
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - "*"
+    preDeployCommand: |
+      python manage.py collectstatic --noinput 
