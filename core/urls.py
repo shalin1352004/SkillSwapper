@@ -17,5 +17,6 @@ urlpatterns = [
     path('requests/sent/', views.requests_sent_view, name='requests_sent'),
     path('requests/received/', views.requests_received_view, name='requests_received'),
     path('chat-list/', views.chat_list_view, name='chat_list'),
+    path('chat/mobile/', views.chat_mobile_view, name='chat_mobile'),
     path('user-profile/<int:user_id>/', views.user_profile_view, name='user_profile'),
 ]

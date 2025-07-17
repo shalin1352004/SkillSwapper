@@ -208,17 +208,11 @@
     <div class="skill-card group">
       <!-- Profile Header -->
       <div class="p-6 text-center">
-        <div class="relative inline-block mb-4">
-          <div class="w-20 h-20 rounded-full border-4 border-white shadow-lg overflow-hidden mx-auto">
-            {% if profile.avatar %}
-              <img src="{{ profile.avatar.url }}" alt="Avatar" class="profile-avatar-img">
-            {% else %}
-              <div class="w-full h-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center">
-                <span class="text-white text-2xl font-bold">{{ profile.user.username|first|upper }}</span>
-              </div>
-            {% endif %}
-          </div>
-          <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white"></div>
+        {# Remove avatar image or initial, show only username and info #}
+        <div>
+            <strong>{{ profile.user.username }}</strong><br>
+            {% if profile.email %}{{ profile.email }}<br>{% endif %}
+            {% if profile.skills %}Skills: {{ profile.skills }}{% endif %}
         </div>
         
         <!-- Name and Username -->

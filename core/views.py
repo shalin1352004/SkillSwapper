@@ -195,6 +195,9 @@ def login_view(request):
     else:
         form = EmailAuthenticationForm()
     return render(request, 'login.html', {'form': form})
+def chat_mobile_view(request):
+    messages = ChatMessage.objects.all()  # Or filter based on user/chatroom
+    return render(request, 'chat_mobile.html', {'messages': messages})
 
 
 def register_view(request):
